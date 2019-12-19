@@ -1,0 +1,15 @@
+- Project
+|
++--- src (.cpp)
+|
++--- include (.h) ????
+|
++--- test (cpp unit test)
+|
++--- doc (docs)
+|
++--- bin (generated binaries)
+|
++--- lib (external dependencies)
+|
++--- etc (configuration files)
