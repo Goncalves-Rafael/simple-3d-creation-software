@@ -5,10 +5,6 @@
 #include "program.h"
 
 int main (int argc, char* argv[]) {
-  std::cout << argc << std::endl;
-  for(int i = 0; i < argc; i++) {
-    std::cout << argv[i] << std::endl;
-  }
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
