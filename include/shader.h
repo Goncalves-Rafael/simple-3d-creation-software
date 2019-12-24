@@ -14,14 +14,18 @@ private:
   // the program ID
   unsigned int shaderId;
   GLenum shaderType;
-  void setShaderId(int id);
+  const char* shaderCode;
+
+  void setShaderId(unsigned int id);
   void setShaderType(GLenum type);
+  void setShaderCode(const char* newCode);
 
 public:
-  Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+  Shader(const GLchar* shaderPath, GLenum shaderType);
 
   unsigned int getShaderId();
   GLenum getShaderType();
+  const char* getShaderCode();
 
   unsigned int compileShader(const char* shaderCode, GLenum shaderType);
   // use/activate the shader

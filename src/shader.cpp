@@ -5,7 +5,7 @@
 
 #include "shader.h"
 
-shader::Shader(const GLchar* shaderPath, GLenum shaderType) {
+Shader::Shader(const GLchar* shaderPath, GLenum shaderType) {
   std::string shaderCode;
   std::ifstream shaderFile;
   // ensure ifstream objects can throw exceptions:
@@ -24,39 +24,55 @@ shader::Shader(const GLchar* shaderPath, GLenum shaderType) {
     std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
   }
   const char* finalShaderCode = shaderCode.c_str();
-  this.setShaderType(shaderType);
-  this.setShaderId(this.compileShader(finalShaderCode, shaderType));
+  setShaderType(shaderType);
+  setShaderCode(finalShaderCode);
+  setShaderId(compileShader(finalShaderCode, shaderType));
 }
 
-unsigned int shader::compileShader(const char* shaderCode, GLenum shaderType) {
+unsigned int Shader::compileShader(const char* shaderCode, GLenum shaderType) {
   unsigned int shader;
   int success;
   char infoLog[521];
 
   shader = glCreateShader(shaderType);
-  glShaderSource(shader, &shaderCode, NULL);
+  glShaderSource(shader, 1, &shaderCode, NULL);
+  glCompileShader(shader);
 
-  glGetshaderiv(shader, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(shader, 521, NULL, infoLog);
     std::cout << "ERROR::SHADER:: " << shaderType << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+    return 0;
   }
+
+  return shader;
 }
 
-unsigned int shader::getShaderId() {
-  return this.shaderId;
+unsigned int Shader::getShaderId() {
+  if(shaderId == 0) {
+    setShaderId(compileShader(getShaderCode(), getShaderType()));
+  }
+  return shaderId;
 }
 
-void shader::setShaderId(unsigned int id) {
-  this.shaderId = id;
+void Shader::setShaderId(unsigned int id) {
+  shaderId = id;
 }
 
-GLenum shader::getShaderType() {
-  return this.shaderType;
+GLenum Shader::getShaderType() {
+  return shaderType;
 }
 
-void shader::setShaderType(GLenum type) {
-  this.shaderType = type;
+void Shader::setShaderType(GLenum type) {
+  shaderType = type;
+}
+
+void Shader::setShaderCode(const char* newCode) {
+  shaderCode = newCode;
+}
+
+const char* Shader::getShaderCode() {
+  return shaderCode;
 }
 
 // void ~shader::Shader() {
