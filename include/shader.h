@@ -27,6 +27,7 @@ public:
   GLenum getShaderType();
   const char* getShaderCode();
 
+  std::string getFileContent(const GLchar* shaderPath);
   unsigned int compileShader(const char* shaderCode, GLenum shaderType);
   // use/activate the shader
   // void use();

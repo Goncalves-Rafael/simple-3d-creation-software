@@ -8,25 +8,30 @@
 Shader::Shader(const GLchar* shaderPath, GLenum shaderType) {
   std::string shaderCode;
   std::ifstream shaderFile;
-  // ensure ifstream objects can throw exceptions:
-  shaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+
   try {
-    // open files
-    shaderFile.open(shaderPath);
-    std::stringstream shaderStream;
-    // read file's buffer contents into streams
-    shaderStream << shaderFile.rdbuf();
-    // close file handlers
-    shaderFile.close();
-    // convert stream into string
-    shaderCode   = shaderStream.str();
+    shaderCode = getFileContent(shaderPath);
+    const char* finalShaderCode = shaderCode.c_str();
+    setShaderType(shaderType);
+    setShaderCode(finalShaderCode);
+    setShaderId(compileShader(finalShaderCode, shaderType));
   } catch(std::ifstream::failure e) {
     std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
   }
-  const char* finalShaderCode = shaderCode.c_str();
-  setShaderType(shaderType);
-  setShaderCode(finalShaderCode);
-  setShaderId(compileShader(finalShaderCode, shaderType));
+}
+
+std::string Shader::getFileContent(const GLchar* shaderPath) {
+  std::ifstream shaderFile;
+  shaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+  // open files
+  shaderFile.open(shaderPath);
+  std::stringstream shaderStream;
+  // read file's buffer contents into streams
+  shaderStream << shaderFile.rdbuf();
+  // close file handlers
+  shaderFile.close();
+  // convert stream into string
+  return shaderStream.str();
 }
 
 unsigned int Shader::compileShader(const char* shaderCode, GLenum shaderType) {
@@ -49,9 +54,6 @@ unsigned int Shader::compileShader(const char* shaderCode, GLenum shaderType) {
 }
 
 unsigned int Shader::getShaderId() {
-  if(shaderId == 0) {
-    setShaderId(compileShader(getShaderCode(), getShaderType()));
-  }
   return shaderId;
 }
 
@@ -75,6 +77,6 @@ const char* Shader::getShaderCode() {
   return shaderCode;
 }
 
-// void ~shader::Shader() {
+// TODO void ~shader::Shader() {
 //
 // }
