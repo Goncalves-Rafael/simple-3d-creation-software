@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 
 #include <vector>
@@ -26,6 +27,7 @@ private:
   glm::mat4 _model      = glm::mat4(1.0f);
   glm::mat4 _view       = glm::mat4(1.0f);
   glm::mat4 _projection = glm::mat4(1.0f);
+  double _xPos, _yPos;
 
   void static framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -34,14 +36,20 @@ private:
   void processInput();
 
 public:
+  glm::vec3 cameraPos   = glm::vec3(1.0f, 3.0f, -5.0f);
+  glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+  glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+  glm::vec3 cameraRight;
+
   Renderer();
   Renderer(int width, int height);
 
   int  prepare();
   int  sendData(std::vector<Object*> &objects, int verticesCount);
+  GLFWwindow* getWindowId();
   void setProgram(Program* program);
   void draw(std::vector<Object*> &objects);
-
+  void (*newObj)();
 };
 
 #endif

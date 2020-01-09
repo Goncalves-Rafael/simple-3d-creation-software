@@ -7,6 +7,5 @@
 
 int main (int argc, char* argv[]) {
   Project* project = new Project("name");
-  project->createCube();
   project->run();
 }

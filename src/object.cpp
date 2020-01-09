@@ -5,20 +5,22 @@ Object::Object(int numberOfVertices) {
   _verticesCount = numberOfVertices;
 }
 
-Object::Object(const float *vertices, int size) {
+Object::Object(const float *vertices, int size, float x, float y, float z) {
   _verticesCount = size;
   _vertices = new float[size]();
   for(int i = 0; i < size; i++) {
     _vertices[i] = vertices[i];
   }
+  _model = glm::translate(_model, glm::vec3(x,y,z));
 }
 
-Object::Object(float *vertices, int size) {
+Object::Object(float *vertices, int size, float x, float y, float z) {
   _verticesCount = size;
   _vertices = new float[size]();
   for(int i = 0; i < size; i++) {
     _vertices[i] = vertices[i];
   }
+  _model = glm::translate(_model, glm::vec3(x,y,z));
 }
 
 

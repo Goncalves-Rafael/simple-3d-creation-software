@@ -28,6 +28,7 @@ public:
   void createTexture(const GLchar* imgPath);
   void processInput();
   void createCube();
+  void createCube(float x, float y, float z);
   void run();
 };
 

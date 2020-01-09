@@ -16,15 +16,12 @@ void Program::createFragmentShader(const GLchar* shaderPath) {
 unsigned int Program::getProgramId() {
   return programId;
 }
-
-void Program::use() {
+void Program::linkShaders() {
   int success;
   char *infoLog;
-
   glAttachShader(programId, _shaders[0]->getShaderId());
   glAttachShader(programId, _shaders[1]->getShaderId());
   glLinkProgram(programId);
-
   glGetProgramiv(programId, GL_LINK_STATUS, &success);
   if(!success) {
       glGetProgramInfoLog(programId, 512, NULL, infoLog);
@@ -32,7 +29,8 @@ void Program::use() {
   }
   // glDeleteShader(_shaders[0]->getShaderId());
   // glDeleteShader(_shaders[1]->getShaderId());
-
+}
+void Program::setAttributes() {
   //Attributes config
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
@@ -42,5 +40,4 @@ void Program::use() {
   // glBindVertexArray(0);
   // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
-
 }

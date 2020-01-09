@@ -2,6 +2,7 @@
 #define OBJECT_H
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 
@@ -13,8 +14,8 @@ private:
 
 public:
   Object(int numberOfVertices);
-  Object(const float *vertices, int size);
-  Object(float *vertices, int size);
+  Object(const float *vertices, int size, float x, float y, float z);
+  Object(float *vertices, int size, float x, float y, float z);
 
   float*    getVertices();
   int       getVerticesCount();

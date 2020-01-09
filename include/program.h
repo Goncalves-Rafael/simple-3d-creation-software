@@ -34,7 +34,8 @@ public:
   void use();
   void createVertexShader(const GLchar* shaderPath);
   void createFragmentShader(const GLchar* shaderPath);
-
+  void linkShaders();
+  void setAttributes();
   // FIXME right
 
   // TODO listShaders()

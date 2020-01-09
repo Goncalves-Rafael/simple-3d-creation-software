@@ -42,13 +42,24 @@ int Renderer::prepare(){
 
   _currentProgram->createVertexShader(vertex);
   _currentProgram->createFragmentShader(fragment);
-
+  _currentProgram->linkShaders();
   glGenVertexArrays(1, &_VAO);
   glGenBuffers(1, &_VBO);
 
+  glUseProgram(_currentProgram->getProgramId());
   updateProjectionMatrix();
   updateViewMatrix();
+  glfwGetCursorPos(_windowId, &_xPos, &_yPos);
+  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  glm::vec3 cameraDirection = glm::normalize(cameraPos);
+  cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+  cameraUp = glm::cross(cameraDirection, cameraRight);
+
   return 1;
+}
+
+GLFWwindow* Renderer::getWindowId() {
+  return _windowId;
 }
 
 void Renderer::setProgram(Program* program) {
@@ -61,14 +72,12 @@ int Renderer::sendData(std::vector<Object*> &objects, int verticesCount) {
     glBindVertexArray(_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*verticesCount, NULL, GL_STATIC_DRAW);
-
     for(int i = 0; i < objects.size(); i++) {
       size = objects[i]->getVerticesCount() * sizeof(float);
       glBufferSubData(GL_ARRAY_BUFFER, offset, size, objects[i]->getVertices());
       offset += size;
     }
-
-    _currentProgram->use();
+    _currentProgram->setAttributes();
 
   } catch (std::exception e) {
     // Todo
@@ -89,47 +98,75 @@ void Renderer::updateProjectionMatrix(){
 }
 
 void Renderer::updateViewMatrix(){
-  glm::mat4 view = glm::mat4(1.0f);
-  view = glm::translate(view, glm::vec3(10.0f, 28.0f, -3.0f));
+  _view = glm::mat4(1.0f);
+  _view = glm::translate(_view, glm::vec3(0.5f, -0.5f, -5.0f));
+  _view = glm::rotate(_view, glm::radians(35.0f), glm::normalize(glm::vec3(0.8f, 0.4f, 0.2f)));
   GLint viewLoc = glGetUniformLocation(_currentProgram->getProgramId(), "view");
-  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(_view));
 }
 
 void Renderer::draw(std::vector<Object*> &objects) {
-  glUseProgram(_currentProgram->getProgramId());
 
-  while(!glfwWindowShouldClose(_windowId)) { //TODO view loop
-    // input
-    processInput();
-
-
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // glBindTexture(GL_TEXTURE_2D, texture->getId());
-    // create transformations
-    glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-    transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-    transform = glm::rotate(transform, (float)glfwGetTime(), glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-    unsigned int transformLoc = glGetUniformLocation(_currentProgram->getProgramId(), "transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-    // render container
-    glBindVertexArray(_VAO);
-    int offset = 0;
-
-    for(unsigned int i = 0; i < objects.size(); i++) {
-      glDrawArrays(GL_TRIANGLES, offset, objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE);
-    }
+  _view = glm::lookAt(cameraPos, -cameraPos, cameraUp);
+  GLint viewLoc = glGetUniformLocation(_currentProgram->getProgramId(), "view");
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(_view));
+  // std::cout << _xPos << ", " << _yPos << std::endl;
 
 
-    // events
-    glfwSwapBuffers(_windowId);
-    glfwPollEvents();
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // glBindTexture(GL_TEXTURE_2D, texture->getId());
+  // create transformations
+  // render container
+  unsigned int modelLoc = glGetUniformLocation(_currentProgram->getProgramId(), "model");
+  glBindVertexArray(_VAO);
+  int offset = 0;
+  for(int i = 0; i < objects.size(); i++) {
+    std::cout << std::endl;
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(objects[i]->getModel()));
+    glDrawArrays(GL_TRIANGLES, offset, objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE);
+    offset += objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE;
   }
-  glfwTerminate();
+
+
+  // events
+  glfwSwapBuffers(_windowId);
+  glfwPollEvents();
 }
 
-void Renderer::processInput() {
-  if(glfwGetKey(_windowId, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-      glfwSetWindowShouldClose(_windowId, true);
-}
+
+
+// TODO draw grid
+// if(glfwGetMouseButton(_windowId, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+//
+//   // float camX = sin(glfwGetTime()) * radius;
+//   // float camZ = cos(glfwGetTime()) * radius;
+//   // glm::mat4 view;
+//   // view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.
+//   // get angles
+//   double xPos, yPos;
+//   glfwGetCursorPos(_windowId, &xPos, &yPos);
+//   xPos -= _xPos;
+//   yPos -= _yPos;
+//   glm::vec3 horizontal = float(xPos) * glm::normalize(cameraRight);
+//   glm::vec3 vertical = float(yPos) * glm::normalize(cameraUp);
+//   glm::vec2 sum = glm::vec2(cameraPos.x + horizontal.x, cameraPos.z + horizontal.z);
+//   glm::vec2 aaa = glm::vec2(cameraPos.x, cameraPos.z);
+//   float angle = glm::angle(glm::normalize(aaa), glm::normalize(sum));
+//   float radius = glm::length(cameraPos);
+//   float camX = sin(angle) * radius;
+//   float camZ = cos(angle) * radius;
+//   std::cout << angle << std::endl;
+//   std::cout << camX << ", " << camZ <<  std::endl;
+//   // calculate vectors
+//   cameraPos = glm::vec3(camX, 0.0f, camZ);
+//
+//   // update cameraPos and cameraRight
+//   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+//   glm::vec3 cameraDirection = glm::normalize(cameraPos);
+//   cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+//   cameraUp = glm::cross(cameraDirection, cameraRight);
+// } else {
+//   glfwGetCursorPos(_windowId, &_xPos, &_yPos);
+// }
