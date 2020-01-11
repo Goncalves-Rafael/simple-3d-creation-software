@@ -9,7 +9,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-
 #include <vector>
 #include <exception>
 
@@ -20,6 +19,7 @@
 class Renderer {
 private:
   unsigned int _VBO, _VAO, _EBO, _state;
+  unsigned int _axisVBO;
   int _width, _height;
   GLFWwindow*  _windowId;
   Program*     _currentProgram;
@@ -34,6 +34,7 @@ private:
   void updateProjectionMatrix();
   void updateViewMatrix();
   void processInput();
+  void sendAxisData(int offset);
 
 public:
   glm::vec3 cameraPos   = glm::vec3(1.0f, 3.0f, -5.0f);

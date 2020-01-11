@@ -71,12 +71,13 @@ int Renderer::sendData(std::vector<Object*> &objects, int verticesCount) {
     int offset = 0, size;
     glBindVertexArray(_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*verticesCount, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(verticesCount+30), NULL, GL_STATIC_DRAW);
     for(int i = 0; i < objects.size(); i++) {
       size = objects[i]->getVerticesCount() * sizeof(float);
       glBufferSubData(GL_ARRAY_BUFFER, offset, size, objects[i]->getVertices());
       offset += size;
     }
+    sendAxisData(offset);
     _currentProgram->setAttributes();
 
   } catch (std::exception e) {
@@ -85,6 +86,20 @@ int Renderer::sendData(std::vector<Object*> &objects, int verticesCount) {
     return 0;
   }
   return 1;
+}
+
+void Renderer::sendAxisData(int offset) {
+  float axisSize = 50.0f;
+  float axis[] = {
+    -axisSize, 0.0f, 0.0f, 0.0f, 0.0f,
+    axisSize, 0.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, -axisSize, 0.0f, 0.0f, 0.0f,
+    0.0f, axisSize, 0.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, -axisSize, 0.0f, 0.0f,
+    0.0f, 0.0f, axisSize, 0.0f, 0.0f
+  };
+
+  glBufferSubData(GL_ARRAY_BUFFER, offset, 30*sizeof(float), axis);
 }
 
 
@@ -123,12 +138,22 @@ void Renderer::draw(std::vector<Object*> &objects) {
   glBindVertexArray(_VAO);
   int offset = 0;
   for(int i = 0; i < objects.size(); i++) {
-    std::cout << std::endl;
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(objects[i]->getModel()));
     glDrawArrays(GL_TRIANGLES, offset, objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE);
     offset += objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE;
   }
 
+  //draw axis
+  unsigned int colorLoc = glGetUniformLocation(_currentProgram->getProgramId(), "color");
+  unsigned int colorSetLoc = glGetUniformLocation(_currentProgram->getProgramId(), "colorSet");
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 0.5f)));
+  glUniform1i(colorSetLoc, 1);
+	glDrawArrays(GL_LINES, offset, 2);
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 1.0f, 0.0f, 0.5f)));
+  glDrawArrays(GL_LINES, offset+2, 2);
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f)));
+  glDrawArrays(GL_LINES, offset+4, 2);
+  glUniform1i(colorSetLoc, 0);
 
   // events
   glfwSwapBuffers(_windowId);
