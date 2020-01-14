@@ -50,11 +50,6 @@ int Renderer::prepare(){
   updateProjectionMatrix();
   updateViewMatrix();
   glfwGetCursorPos(_windowId, &_xPos, &_yPos);
-  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  glm::vec3 cameraDirection = glm::normalize(cameraPos);
-  cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-  cameraUp = glm::cross(cameraDirection, cameraRight);
-
   return 1;
 }
 
@@ -122,7 +117,6 @@ void Renderer::updateViewMatrix(){
 
 void Renderer::draw(std::vector<Object*> &objects) {
 
-  _view = glm::lookAt(cameraPos, -cameraPos, cameraUp);
   GLint viewLoc = glGetUniformLocation(_currentProgram->getProgramId(), "view");
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(_view));
   // std::cout << _xPos << ", " << _yPos << std::endl;
@@ -142,16 +136,17 @@ void Renderer::draw(std::vector<Object*> &objects) {
     glDrawArrays(GL_TRIANGLES, offset, objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE);
     offset += objects[i]->getVerticesCount()/_VERTEX_INFO_SIZE;
   }
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
   //draw axis
   unsigned int colorLoc = glGetUniformLocation(_currentProgram->getProgramId(), "color");
   unsigned int colorSetLoc = glGetUniformLocation(_currentProgram->getProgramId(), "colorSet");
-  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 0.5f)));
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.4f, 0.0f, 0.0f, 0.5f)));
   glUniform1i(colorSetLoc, 1);
 	glDrawArrays(GL_LINES, offset, 2);
-  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 1.0f, 0.0f, 0.5f)));
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.4f, 0.5f)));
   glDrawArrays(GL_LINES, offset+2, 2);
-  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f)));
+  glUniform4fv(colorLoc, 1, glm::value_ptr(glm::vec4(0.0f, 0.4f, 0.0f, 0.5f)));
   glDrawArrays(GL_LINES, offset+4, 2);
   glUniform1i(colorSetLoc, 0);
 
@@ -160,6 +155,9 @@ void Renderer::draw(std::vector<Object*> &objects) {
   glfwPollEvents();
 }
 
+void Renderer::setView(glm::mat4 viewMatrix) {
+  _view = viewMatrix;
+}
 
 
 // TODO draw grid

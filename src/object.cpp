@@ -32,12 +32,16 @@ int Object::getVerticesCount() {
   return _verticesCount;
 }
 
-void Object::setModel(glm::mat4 matrix){
+void Object::setModel(glm::mat4 matrix) {
   _model = matrix;
 }
 
-glm::mat4 Object::getModel(){
+glm::mat4 Object::getModel() {
   return _model;
+}
+
+void Object::moveTo(glm::vec3 dest) {
+  _model = glm::translate(glm::mat4(1.0f), dest);
 }
 
 Object::~Object() {

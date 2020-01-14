@@ -3,6 +3,7 @@
 Project::Project(std::string name) {
   _name = name;
   _renderer = new Renderer(1280, 720);
+  _baseCam = new Camera();
   // createTexture("/home/rafael/Desktop/wall.jpg");
 }
   // void createTexture(const GLchar* imgPath);
@@ -66,6 +67,7 @@ void Project::run() {
   createCube(-2.0f,-2.0f,0.0f);
   while(!glfwWindowShouldClose(_renderer->getWindowId())) {
     processInput();
+    _renderer->setView(_baseCam->getCameraView());
     _renderer->draw(_objects);
   }
   glfwTerminate();
@@ -76,62 +78,83 @@ void Project::processInput() {
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(_renderer->getWindowId(), true);
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_D) == GLFW_PRESS) {
-    rotateCamera(1,0);
+    _baseCam->rotateCameraAroundTarget(glm::vec2(1,0));
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_A) == GLFW_PRESS) {
-    rotateCamera(-1,0);
+    _baseCam->rotateCameraAroundTarget(glm::vec2(-1,0));
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_W) == GLFW_PRESS) {
-    rotateCamera(0,1);
+    _baseCam->rotateCameraAroundTarget(glm::vec2(0,1));
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_S) == GLFW_PRESS) {
-    rotateCamera(0,-1);
+    _baseCam->rotateCameraAroundTarget(glm::vec2(0,-1));
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_C) == GLFW_PRESS){
     createCube();
   }
   if(glfwGetMouseButton(_renderer->getWindowId(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
-    double tempX, tempY;
-    glm::vec2 tempDir;
-    glfwGetCursorPos(_renderer->getWindowId(), &tempX, &tempY);
-    tempX -= _mouseX;
-    tempY -= _mouseY;
-    if(tempX != 0 || tempY != 0) {
-      tempDir = glm::vec2(tempX, tempY);
+    glm::vec2 tempDir = getCursorDisplacement();
+    // std::cout << tempDir.x << ", " << tempDir.y << std::endl;
+    if (abs(tempDir.y) < 4) tempDir.y = 0;
+    if (abs(tempDir.x) < 4) tempDir.x = 0;
+    if(tempDir.x != 0 || tempDir.y != 0) {
       if(glm::length(tempDir) > 1){
-        rotateCamera(-tempX, -tempY);
+        _baseCam->rotateCameraAroundTarget(-tempDir);
       }
-      tempDir = glm::normalize(tempDir);
-      _mouseX += tempDir.x;
-      _mouseY += tempDir.y;
+    }
+  } else if (glfwGetKey(_renderer->getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+    glm::vec2 tempDir = glm::normalize(getCursorDisplacement());
+    float length = glm::length(tempDir);
+    // std::cout << tempDir.x << ", " << tempDir.y << std::endl;
+    if(tempDir.x > 0) {
+      _baseCam->zoomCamera(length*0.01);
+    } else if (tempDir.x < 0) {
+      _baseCam->zoomCamera(-length*0.01);
     }
   } else {
     glfwGetCursorPos(_renderer->getWindowId(), &_mouseX, &_mouseY);
   }
-  if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_Z) == GLFW_PRESS){
-    zoomCamera(0.05f);
-  }
-  if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_X) == GLFW_PRESS){
-    zoomCamera(-.05f);
+  // if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_Z) == GLFW_PRESS){
+  //   zoomCamera(0.05f);
+  // }
+  // if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_X) == GLFW_PRESS){
+  //   zoomCamera(-.05f);
+  // }
+  if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_F) == GLFW_PRESS){
+    move();
   }
 }
 
-void Project::rotateCamera(float x, float y) {
-  glm::mat3 viewTemp = glm::mat3(1.0f);
-  float angleSpeed = 0.5f;
-  if(x != 0) {
-    viewTemp = glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(angleSpeed), glm::normalize(x*_renderer->cameraUp)));
-  }
-  if(y != 0) {
-    viewTemp *= glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(angleSpeed), glm::normalize(y*_renderer->cameraRight)));
-  }
-
-  _renderer->cameraPos = viewTemp * _renderer->cameraPos;
-  _renderer->cameraRight = viewTemp * _renderer->cameraRight;
-  _renderer->cameraUp = viewTemp * _renderer->cameraUp;
+void Project::move() {
+  float x,y,z;
+  std::cout << "Enter x:\n";
+  std::cin >> x;
+  std::cout << x;
+  std::cout << "Enter y:\n";
+  std::cin >> y;
+  std::cout << y;
+  std::cout << "Enter z:\n";
+  std::cin >> z;
+  std::cout << z;
+  _objects[0]->moveTo(glm::vec3(x,y,z));
 }
 
-void Project::zoomCamera(float dist) {
-  glm::mat4 desloc = glm::translate(glm::mat4(1.0f),dist*_renderer->cameraPos);
-  _renderer->cameraPos = glm::vec3(desloc * glm::vec4(_renderer->cameraPos,1.0f));
+
+glm::vec2 Project::getCursorDisplacement() {
+  double tempX, tempY;
+  float length;
+  glm::vec2 direction;
+
+  glfwGetCursorPos(_renderer->getWindowId(), &tempX, &tempY);
+  tempX -= _mouseX;
+  tempY -= _mouseY;
+  direction = glm::vec2(tempX, tempY);
+  std::cout << "tempX: " << tempX << ", " << "tempY: " <<  tempY << std::endl;
+  length = glm::length(tempY);
+  if(length > 0) {
+    _mouseX += direction.x/length;
+    _mouseY += direction.y/length;
+  }
+
+  return direction;
 }

@@ -12,8 +12,11 @@ run: $(BUILD)/main$(EXE)
 $(BUILD)/main: $(SRC)/main.cpp $(BIN)/project$(OBJ) $(BIN)/glad$(OBJ)
 	g++ -std=c++11 -o $(BUILD)/main$(EXE) $(SRC)/main.cpp $(wildcard $(BIN)/*.o) -I $(INCLUDE) $(LIBS)
 
-$(BIN)/project$(OBJ): $(SRC)/project.cpp $(BIN)/object$(OBJ) $(BIN)/renderer$(OBJ) $(BIN)/texture$(OBJ)
+$(BIN)/project$(OBJ): $(SRC)/project.cpp $(BIN)/object$(OBJ) $(BIN)/renderer$(OBJ) $(BIN)/texture$(OBJ) $(BIN)/camera$(OBJ)
 	g++ -std=c++11 -c $(SRC)/project.cpp -I $(INCLUDE) -o $(BIN)/project$(OBJ)
+
+$(BIN)/camera$(OBJ): $(SRC)/camera.cpp
+	g++ -std=c++11 -c $(SRC)/camera.cpp -I $(INCLUDE) -o $(BIN)/camera$(OBJ)
 
 $(BIN)/renderer$(OBJ): $(SRC)/renderer.cpp $(BIN)/program$(OBJ) $(BIN)/object$(OBJ)
 	g++ -std=c++11 -c $(SRC)/renderer.cpp -I $(INCLUDE) -o $(BIN)/renderer$(OBJ)

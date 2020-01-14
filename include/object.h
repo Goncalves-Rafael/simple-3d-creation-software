@@ -21,6 +21,7 @@ public:
   int       getVerticesCount();
   void      setModel(glm::mat4 matrix);
   glm::mat4 getModel();
+  void moveTo(glm::vec3 dest);
 
   ~Object();
 };
