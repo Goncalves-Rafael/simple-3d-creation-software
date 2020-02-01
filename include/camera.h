@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/projection.hpp>
 
 class Camera {
 private:
@@ -18,7 +19,7 @@ public:
 
   void rotateCameraAroundTarget(glm::vec2 rotateVector);
   void zoomCamera(float dist);
-
+  void moveCamera(glm::vec2 dirVector);
   glm::mat4 getCameraView();
 };
 

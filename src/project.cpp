@@ -95,11 +95,15 @@ void Project::processInput() {
   if(glfwGetMouseButton(_renderer->getWindowId(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
     glm::vec2 tempDir = getCursorDisplacement();
     // std::cout << tempDir.x << ", " << tempDir.y << std::endl;
-    if (abs(tempDir.y) < 4) tempDir.y = 0;
-    if (abs(tempDir.x) < 4) tempDir.x = 0;
+    if (abs(tempDir.y) < 2) tempDir.y = 0;
+    if (abs(tempDir.x) < 2) tempDir.x = 0;
     if(tempDir.x != 0 || tempDir.y != 0) {
       if(glm::length(tempDir) > 1){
-        _baseCam->rotateCameraAroundTarget(-tempDir);
+        if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+          _baseCam->moveCamera(tempDir);
+        } else {
+          _baseCam->rotateCameraAroundTarget(-tempDir);
+        }
       }
     }
   } else if (glfwGetKey(_renderer->getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
@@ -149,7 +153,7 @@ glm::vec2 Project::getCursorDisplacement() {
   tempX -= _mouseX;
   tempY -= _mouseY;
   direction = glm::vec2(tempX, tempY);
-  std::cout << "tempX: " << tempX << ", " << "tempY: " <<  tempY << std::endl;
+  // std::cout << "tempX: " << tempX << ", " << "tempY: " <<  tempY << std::endl;
   length = glm::length(tempY);
   if(length > 0) {
     _mouseX += direction.x/length;
