@@ -2,7 +2,8 @@
 # LIBS=-lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 LIBS= -lglfw3 -lgdi32 -lopengl32 -lX11 -lpthread -lXrandr -lXi -ldl
 LIBFOLDER= ./lib
-INCLUDE=./include
+INCLUDE=./include 
+VENDOR= ./vendor
 SRC=src
 BUILD=build
 EXE=.exe
@@ -12,8 +13,8 @@ OBJ=.o
 run: $(BUILD)/main$(EXE)
 	./$(BUILD)/main$(EXE)
 
-$(BUILD)/main$(EXE): $(SRC)/main.cpp $(BIN)/project$(OBJ) $(BIN)/glad$(OBJ)
-	g++ -std=c++11 -L$(LIBFOLDER) -o $(BUILD)/main$(EXE) $(SRC)/main.cpp $(wildcard $(BIN)/*.o) -I $(INCLUDE) $(LIBS)
+$(BUILD)/main$(EXE): $(SRC)/main.cpp $(BIN)/project$(OBJ) $(BIN)/glad$(OBJ) $(BIN)/log$(OBJ)
+	g++ -std=c++11 -L$(LIBFOLDER) -o $(BUILD)/main$(EXE) $(SRC)/main.cpp $(wildcard $(BIN)/*.o) -I $(INCLUDE) -I$(VENDOR)/spdlog/include $(LIBS)
 
 $(BIN)/project$(OBJ): $(SRC)/project.cpp $(BIN)/object$(OBJ) $(BIN)/renderer$(OBJ) $(BIN)/texture$(OBJ) $(BIN)/camera$(OBJ)
 	g++ -std=c++11 -c $(SRC)/project.cpp -I $(INCLUDE) -o $(BIN)/project$(OBJ)
@@ -42,6 +43,8 @@ $(BIN)/stb_image$(OBJ): $(SRC)/stb_image.cpp
 $(BIN)/glad$(OBJ): $(SRC)/glad.c
 	g++ -std=c++11 -c $(SRC)/glad.c $(LIBS) -o $(BIN)/glad$(OBJ) -I $(INCLUDE)
 
+$(BIN)/log$(OBJ): $(SRC)/log.cpp
+	g++ -std=c++11 -c $(SRC)/log.cpp -o $(BIN)/log$(OBJ) -I$(INCLUDE) -I$(VENDOR)/spdlog/include
 clean:
 	del build\*$(EXE) *~
 	del bin\*$(OBJ) *~
