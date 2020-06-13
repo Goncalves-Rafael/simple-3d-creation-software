@@ -1,16 +1,19 @@
-LIBS=-lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
-INCLUDE=include/
+# On linux use these libs
+# LIBS=-lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+LIBS= -lglfw3 -lgdi32 -lopengl32 -lX11 -lpthread -lXrandr -lXi -ldl
+LIBFOLDER= ./lib
+INCLUDE=./include
 SRC=src
 BUILD=build
-EXE=
+EXE=.exe
 BIN=bin
 OBJ=.o
 
 run: $(BUILD)/main$(EXE)
 	./$(BUILD)/main$(EXE)
 
-$(BUILD)/main: $(SRC)/main.cpp $(BIN)/project$(OBJ) $(BIN)/glad$(OBJ)
-	g++ -std=c++11 -o $(BUILD)/main$(EXE) $(SRC)/main.cpp $(wildcard $(BIN)/*.o) -I $(INCLUDE) $(LIBS)
+$(BUILD)/main$(EXE): $(SRC)/main.cpp $(BIN)/project$(OBJ) $(BIN)/glad$(OBJ)
+	g++ -std=c++11 -L$(LIBFOLDER) -o $(BUILD)/main$(EXE) $(SRC)/main.cpp $(wildcard $(BIN)/*.o) -I $(INCLUDE) $(LIBS)
 
 $(BIN)/project$(OBJ): $(SRC)/project.cpp $(BIN)/object$(OBJ) $(BIN)/renderer$(OBJ) $(BIN)/texture$(OBJ) $(BIN)/camera$(OBJ)
 	g++ -std=c++11 -c $(SRC)/project.cpp -I $(INCLUDE) -o $(BIN)/project$(OBJ)
@@ -37,8 +40,12 @@ $(BIN)/stb_image$(OBJ): $(SRC)/stb_image.cpp
 	g++ -std=c++11 -c $(SRC)/stb_image.cpp -I $(INCLUDE) -o $(BIN)/stb_image$(OBJ)
 
 $(BIN)/glad$(OBJ): $(SRC)/glad.c
-	g++ -std=c++11 -c $(SRC)/glad.c $(LIBS) -o $(BIN)/glad$(OBJ)
+	g++ -std=c++11 -c $(SRC)/glad.c $(LIBS) -o $(BIN)/glad$(OBJ) -I $(INCLUDE)
 
 clean:
-	rm -rf build/*$(EXE) *~
-	rm -rf bin/*$(OBJ) *~
+	del build\*$(EXE) *~
+	del bin\*$(OBJ) *~
+
+
+	# rm -rf ./build/*$(EXE) *~
+	# rm -rf ./bin/*$(OBJ) *~
