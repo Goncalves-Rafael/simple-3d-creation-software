@@ -65,7 +65,12 @@ void Project::run() {
   createCube(2.0f,-2.0f,0.0f);
   createCube(-2.0f,2.0f,0.0f);
   createCube(-2.0f,-2.0f,0.0f);
+  float time = (float)glfwGetTime();
+  lastTimeFrame = time;
   while(!glfwWindowShouldClose(_renderer->getWindowId())) {
+    time = (float)glfwGetTime();
+    _deltaSeconds = time - lastTimeFrame;
+    lastTimeFrame = time;
     processInput();
     _renderer->setView(_baseCam->getCameraView());
     _renderer->draw(_objects);
@@ -78,51 +83,43 @@ void Project::processInput() {
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(_renderer->getWindowId(), true);
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_D) == GLFW_PRESS) {
-    _baseCam->rotateCameraAroundTarget(glm::vec2(1,0));
+    _baseCam->rotateCameraAroundTarget(glm::vec2(1,0), _deltaSeconds);
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_A) == GLFW_PRESS) {
-    _baseCam->rotateCameraAroundTarget(glm::vec2(-1,0));
+    _baseCam->rotateCameraAroundTarget(glm::vec2(-1,0), _deltaSeconds);
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_W) == GLFW_PRESS) {
-    _baseCam->rotateCameraAroundTarget(glm::vec2(0,1));
+    _baseCam->rotateCameraAroundTarget(glm::vec2(0,1), _deltaSeconds);
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_S) == GLFW_PRESS) {
-    _baseCam->rotateCameraAroundTarget(glm::vec2(0,-1));
+    _baseCam->rotateCameraAroundTarget(glm::vec2(0,-1), _deltaSeconds);
   }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_C) == GLFW_PRESS){
     createCube();
   }
   if(glfwGetMouseButton(_renderer->getWindowId(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
-    glm::vec2 tempDir = getCursorDisplacement();
-    // std::cout << tempDir.x << ", " << tempDir.y << std::endl;
-    if (abs(tempDir.y) < 2) tempDir.y = 0;
-    if (abs(tempDir.x) < 2) tempDir.x = 0;
+    glm::vec2 tempDir = getCursorDisplacement() / _deltaSeconds;
+    
     if(tempDir.x != 0 || tempDir.y != 0) {
-      if(glm::length(tempDir) > 1){
-        if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-          _baseCam->moveCamera(tempDir);
-        } else {
-          _baseCam->rotateCameraAroundTarget(-tempDir);
-        }
+      if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        _baseCam->moveCamera(tempDir, _deltaSeconds);
+      } else {
+        _baseCam->rotateCameraAroundTarget(-tempDir, _deltaSeconds);
       }
     }
   } else if (glfwGetKey(_renderer->getWindowId(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
     glm::vec2 tempDir = glm::normalize(getCursorDisplacement());
-    float length = glm::length(tempDir);
-    // std::cout << tempDir.x << ", " << tempDir.y << std::endl;
-    if(tempDir.x > 0) {
-      _baseCam->zoomCamera(length*0.01);
-    } else if (tempDir.x < 0) {
-      _baseCam->zoomCamera(-length*0.01);
+    if (glm::abs(tempDir.x) > 0) {
+      _baseCam->zoomCamera(tempDir.x, _deltaSeconds);
     }
   } else {
     glfwGetCursorPos(_renderer->getWindowId(), &_mouseX, &_mouseY);
   }
   // if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_Z) == GLFW_PRESS){
-  //   zoomCamera(0.05f);
+  //    _baseCam->zoomCamera(0.05f);
   // }
   // if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_X) == GLFW_PRESS){
-  //   zoomCamera(-.05f);
+  //    _baseCam->zoomCamera(-.05f);
   // }
   if(glfwGetKey(_renderer->getWindowId(), GLFW_KEY_F) == GLFW_PRESS){
     move();
@@ -147,18 +144,20 @@ void Project::move() {
 glm::vec2 Project::getCursorDisplacement() {
   double tempX, tempY;
   float length;
+  float mouseSpeed = 2000000.f;
   glm::vec2 direction;
 
   glfwGetCursorPos(_renderer->getWindowId(), &tempX, &tempY);
-  tempX -= _mouseX;
-  tempY -= _mouseY;
+  tempX = tempX - _mouseX;
+  tempY = tempY - _mouseY;
+  if (glm::abs(tempX) < 5 && glm::abs(tempY) < 5) return glm::vec2(0, 0);
+  
   direction = glm::vec2(tempX, tempY);
-  // std::cout << "tempX: " << tempX << ", " << "tempY: " <<  tempY << std::endl;
-  length = glm::length(tempY);
+  length = glm::length(direction);
   if(length > 0) {
-    _mouseX += direction.x/length;
-    _mouseY += direction.y/length;
+    _mouseX += direction.x;
+    _mouseY += direction.y;
   }
-
+  
   return direction;
 }

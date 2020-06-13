@@ -25,6 +25,8 @@ private:
   std::string _name;
   int _width, _height, _verticesCount = 0;
   double _mouseX = 0, _mouseY = 0;
+  float lastTimeFrame = 0.f;
+  float _deltaSeconds = 0.f;
 
 public:
   Project(std::string name);
