@@ -13,6 +13,7 @@
 #include "texture.h"
 #include "object.h"
 #include "cube.h"
+#include "arrow.h"
 #include "camera.h"
 #include "renderer.h"
 
@@ -34,6 +35,7 @@ public:
   void processInput();
   void createCube();
   void createCube(float x, float y, float z);
+  void createArrow(float x, float y, float z);
   void move();
   void run();
   glm::vec2 getCursorDisplacement();

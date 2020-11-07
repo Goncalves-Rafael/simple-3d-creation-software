@@ -34,37 +34,43 @@ void Project::createCube(float x, float y, float z) {
   _renderer->sendData(_objects, _verticesCount);
 }
 
+void Project::createArrow(float x, float y, float z) {
+  _objects.push_back(new Object(_ARROW_VERTICES_, 180, x, y, z));
+  _verticesCount += 180;
+  _renderer->sendData(_objects, _verticesCount);
+}
+
 void Project::createTexture(const GLchar* imgPath) {
   _texture = new Texture(imgPath);
 }
 
 void Project::run() {
   _renderer->prepare();
-  createCube(0.0f,0.0f,0.0f);
-  createCube(1.0f,1.0f,1.0f);
-  createCube(1.0f,1.0f,-1.0f);
-  createCube(1.0f,-1.0f,1.0f);
-  createCube(1.0f,-1.0f,-1.0f);
-  createCube(-1.0f,1.0f,1.0f);
-  createCube(-1.0f,1.0f,-1.0f);
-  createCube(-1.0f,-1.0f,1.0f);
-  createCube(-1.0f,-1.0f,-1.0f);
-  createCube(2.0f,2.0f,2.0f);
-  createCube(2.0f,2.0f,-2.0f);
-  createCube(2.0f,-2.0f,2.0f);
-  createCube(2.0f,-2.0f,-2.0f);
-  createCube(-2.0f,2.0f,2.0f);
-  createCube(-2.0f,2.0f,-2.0f);
-  createCube(-2.0f,-2.0f,2.0f);
-  createCube(-2.0f,-2.0f,-2.0f);
-  createCube(0.0f,-2.0f,-2.0f);
-  createCube(0.0f,-2.0f,2.0f);
-  createCube(0.0f,2.0f,-2.0f);
-  createCube(0.0f,2.0f,2.0f);
-  createCube(2.0f,2.0f,0.0f);
-  createCube(2.0f,-2.0f,0.0f);
-  createCube(-2.0f,2.0f,0.0f);
-  createCube(-2.0f,-2.0f,0.0f);
+  createArrow(0.0f,0.0f,0.0f);
+  createCube(1.0f,0.0f,1.0f);
+  // createCube(1.0f,1.0f,-1.0f);
+  // createCube(1.0f,-1.0f,1.0f);
+  // createCube(1.0f,-1.0f,-1.0f);
+  // createCube(-1.0f,1.0f,1.0f);
+  // createCube(-1.0f,1.0f,-1.0f);
+  // createCube(-1.0f,-1.0f,1.0f);
+  // createCube(-1.0f,-1.0f,-1.0f);
+  // createCube(2.0f,2.0f,2.0f);
+  // createCube(2.0f,2.0f,-2.0f);
+  // createCube(2.0f,-2.0f,2.0f);
+  // createCube(2.0f,-2.0f,-2.0f);
+  // createCube(-2.0f,2.0f,2.0f);
+  // createCube(-2.0f,2.0f,-2.0f);
+  // createCube(-2.0f,-2.0f,2.0f);
+  // createCube(-2.0f,-2.0f,-2.0f);
+  // createCube(0.0f,-2.0f,-2.0f);
+  // createCube(0.0f,-2.0f,2.0f);
+  // createCube(0.0f,2.0f,-2.0f);
+  // createCube(0.0f,2.0f,2.0f);
+  // createCube(2.0f,2.0f,0.0f);
+  // createCube(2.0f,-2.0f,0.0f);
+  // createCube(-2.0f,2.0f,0.0f);
+  // createCube(-2.0f,-2.0f,0.0f);
   float time = (float)glfwGetTime();
   lastTimeFrame = time;
   while(!glfwWindowShouldClose(_renderer->getWindowId())) {
